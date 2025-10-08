@@ -17,7 +17,7 @@ load_dotenv()
 # Adicionar src ao path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
-from src.main import app, socketio, db
+from src.main import app, socketio
 from src.services.manus_integration import ManusIntegrationService
 import logging
 
@@ -48,25 +48,25 @@ class AIViceServer:
             
             logger.info(f"🚀 Iniciando servidor AI Vice em {host}:{port}")
             
-            # Inicializar banco de dados
+            # Garante que o contexto da aplicação está ativo para operações de banco de dados
+            # db.init_app(app) e db.create_all() já são chamados em src/main.py
             with app.app_context():
-                db.create_all()
-                logger.info("📊 Banco de dados inicializado")
-            
-            # Inicializar serviço de integração Manus
-            self.manus_service = ManusIntegrationService(socketio)
-            
-            # Exibir interface do terminal
-            self.manus_service.display_terminal_interface()
-            
-            # Iniciar loop de escuta em thread separada
-            def run_manus_service():
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-                loop.run_until_complete(self.manus_service.start_listening())
-            
-            manus_thread = threading.Thread(target=run_manus_service, daemon=True)
-            manus_thread.start()
+                logger.info("📊 Contexto da aplicação Flask ativado para serviços")
+                
+                # Inicializar serviço de integração Manus
+                self.manus_service = ManusIntegrationService(socketio)
+                
+                # Exibir interface do terminal
+                self.manus_service.display_terminal_interface()
+                
+                # Iniciar loop de escuta em thread separada
+                def run_manus_service_loop():
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    loop.run_until_complete(self.manus_service.start_listening())
+                
+                manus_thread = threading.Thread(target=run_manus_service_loop, daemon=True)
+                manus_thread.start()
             
             # Configurar handlers de sinal
             signal.signal(signal.SIGINT, self._signal_handler)
