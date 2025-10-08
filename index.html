@@ -1,15 +1,486 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AI Vice - Assistente de IA Conversacional</title>
-    <meta name="description" content="Converse com uma IA avançada em tempo real. Interface minimalista e moderna para conversas inteligentes." />
-    <script type="module" crossorigin src="/assets/index-IIDk3tFz.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-DEWmhzux.css">
-  </head>
-  <body>
-    <div id="root"></div>
-  </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Vice - Chat com IA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-container {
+            width: 90%;
+            max-width: 800px;
+            height: 90vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .chat-header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .chat-header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .status-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 12px;
+            height: 12px;
+            background: #4ade80;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8fafc;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            items-center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .message.ai .message-avatar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .message.user .message-avatar {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 15px 20px;
+            border-radius: 20px;
+            position: relative;
+            word-wrap: break-word;
+        }
+
+        .message.ai .message-content {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px 20px 20px 5px;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px 20px 5px 20px;
+        }
+
+        .message-time {
+            font-size: 12px;
+            opacity: 0.6;
+            margin-top: 5px;
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 15px 20px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dots span {
+            width: 8px;
+            height: 8px;
+            background: #94a3b8;
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        .chat-input {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .message-input:focus {
+            border-color: #667eea;
+        }
+
+        .send-button, .file-button {
+            width: 50px;
+            height: 50px;
+            border: none;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: transform 0.2s ease;
+        }
+
+        .send-button:hover, .file-button:hover {
+            transform: scale(1.05);
+        }
+
+        .send-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-preview {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f1f5f9;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .welcome-message {
+            text-align: center;
+            padding: 40px 20px;
+            color: #64748b;
+        }
+
+        .welcome-message h2 {
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .chat-container {
+                width: 95%;
+                height: 95vh;
+                border-radius: 15px;
+            }
+            
+            .message-content {
+                max-width: 85%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <div class="status-indicator"></div>
+            <h1>AI Vice</h1>
+            <p>Assistente de IA Conversacional</p>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+            <div class="welcome-message">
+                <h2>👋 Olá! Eu sou o AI Vice</h2>
+                <p>Sou uma IA conversacional pronta para ajudar você com qualquer coisa que precisar. Pode fazer perguntas, enviar arquivos para análise, ou simplesmente conversar!</p>
+            </div>
+        </div>
+
+        <div class="typing-indicator" id="typingIndicator">
+            <div class="typing-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+
+        <div class="chat-input">
+            <div class="file-preview" id="filePreview"></div>
+            <div class="input-container">
+                <button class="file-button" onclick="document.getElementById('fileInput').click()" title="Enviar arquivo">
+                    📎
+                </button>
+                <input type="file" id="fileInput" class="file-input" accept="*/*">
+                <input type="text" id="messageInput" class="message-input" placeholder="Digite sua mensagem..." maxlength="1000">
+                <button class="send-button" id="sendButton" onclick="sendMessage()" title="Enviar mensagem">
+                    ➤
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let messageCount = 0;
+        let currentFile = null;
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', function() {
+            const messageInput = document.getElementById('messageInput');
+            messageInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            // File input handler
+            document.getElementById('fileInput').addEventListener('change', handleFileSelect);
+        });
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                currentFile = file;
+                const preview = document.getElementById('filePreview');
+                preview.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span>📄 ${file.name} (${formatFileSize(file.size)})</span>
+                        <button onclick="removeFile()" style="background: none; border: none; color: #ef4444; cursor: pointer;">✕</button>
+                    </div>
+                `;
+                preview.style.display = 'block';
+            }
+        }
+
+        function removeFile() {
+            currentFile = null;
+            document.getElementById('filePreview').style.display = 'none';
+            document.getElementById('fileInput').value = '';
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message && !currentFile) return;
+
+            // Adicionar mensagem do usuário
+            if (message) {
+                addMessage('user', message);
+            }
+
+            // Se há arquivo, adicionar mensagem de arquivo
+            if (currentFile) {
+                addMessage('user', `📄 Arquivo enviado: ${currentFile.name}`, true);
+                // Simular análise do arquivo
+                setTimeout(() => {
+                    analyzeFile(currentFile);
+                }, 1000);
+                removeFile();
+            }
+
+            // Limpar input
+            input.value = '';
+
+            // Mostrar indicador de digitação
+            if (message) {
+                showTypingIndicator();
+                
+                // Simular resposta da IA
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    generateAIResponse(message);
+                }, 1500 + Math.random() * 1000);
+            }
+        }
+
+        function addMessage(sender, content, isFile = false) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('pt-BR', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+
+            messageDiv.innerHTML = `
+                <div class="message-avatar">${sender === 'ai' ? '🤖' : '👤'}</div>
+                <div class="message-content">
+                    ${content}
+                    <div class="message-time">${timeString}</div>
+                </div>
+            `;
+
+            // Remover mensagem de boas-vindas se existir
+            const welcomeMessage = messagesContainer.querySelector('.welcome-message');
+            if (welcomeMessage) {
+                welcomeMessage.remove();
+            }
+
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            messageCount++;
+        }
+
+        function showTypingIndicator() {
+            document.getElementById('typingIndicator').style.display = 'block';
+            const messagesContainer = document.getElementById('chatMessages');
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            document.getElementById('typingIndicator').style.display = 'none';
+        }
+
+        function generateAIResponse(userMessage) {
+            // Simular diferentes tipos de resposta baseado na mensagem
+            let response = '';
+            
+            const lowerMessage = userMessage.toLowerCase();
+            
+            if (lowerMessage.includes('olá') || lowerMessage.includes('oi') || lowerMessage.includes('hello')) {
+                response = 'Olá! 👋 É um prazer conversar com você! Como posso ajudar hoje?';
+            } else if (lowerMessage.includes('como você está') || lowerMessage.includes('tudo bem')) {
+                response = 'Estou muito bem, obrigado por perguntar! 😊 Estou aqui e pronto para ajudar você com qualquer coisa que precisar. E você, como está?';
+            } else if (lowerMessage.includes('quem é você') || lowerMessage.includes('o que você é')) {
+                response = 'Eu sou o AI Vice, um assistente de inteligência artificial conversacional! 🤖 Fui criado para ajudar você com perguntas, análise de arquivos, conversas e muito mais. Posso processar textos, analisar documentos e manter conversas naturais em português.';
+            } else if (lowerMessage.includes('arquivo') || lowerMessage.includes('documento')) {
+                response = 'Posso ajudar você com arquivos! 📄 Você pode enviar documentos de texto, código, planilhas e outros tipos de arquivo usando o botão de anexo (📎). Vou analisar o conteúdo e fornecer insights úteis.';
+            } else if (lowerMessage.includes('obrigado') || lowerMessage.includes('valeu')) {
+                response = 'De nada! 😊 Fico feliz em poder ajudar. Se precisar de mais alguma coisa, é só falar!';
+            } else if (lowerMessage.includes('tchau') || lowerMessage.includes('até logo')) {
+                response = 'Até logo! 👋 Foi ótimo conversar com você. Volte sempre que precisar de ajuda!';
+            } else if (lowerMessage.includes('ajuda') || lowerMessage.includes('help')) {
+                response = 'Claro! Posso ajudar você de várias formas: 🔹 Responder perguntas sobre diversos assuntos 🔹 Analisar arquivos e documentos 🔹 Conversar sobre qualquer tópico 🔹 Ajudar com programação e tecnologia 🔹 Fornecer explicações e tutoriais. O que você gostaria de saber?';
+            } else {
+                // Resposta mais genérica e inteligente
+                const responses = [
+                    `Interessante pergunta! 🤔 Sobre "${userMessage}", posso dizer que é um tópico fascinante. Você poderia me dar mais detalhes sobre o que especificamente gostaria de saber?`,
+                    `Entendo sua questão sobre "${userMessage}". 💭 Para te dar uma resposta mais precisa, seria útil saber mais contexto. Pode me explicar melhor o que você tem em mente?`,
+                    `Ótima pergunta! 🌟 "${userMessage}" é algo que desperta curiosidade. Vou fazer o meu melhor para ajudar - você pode me dar mais informações sobre o que está procurando?`,
+                    `Vejo que você está interessado em "${userMessage}". 🎯 Posso ajudar com isso! Que tipo de informação ou assistência você está buscando especificamente?`
+                ];
+                response = responses[Math.floor(Math.random() * responses.length)];
+            }
+
+            addMessage('ai', response);
+        }
+
+        function analyzeFile(file) {
+            showTypingIndicator();
+            
+            setTimeout(() => {
+                hideTypingIndicator();
+                
+                const fileExtension = file.name.split('.').pop().toLowerCase();
+                let analysis = '';
+
+                if (['txt', 'md', 'doc', 'docx'].includes(fileExtension)) {
+                    analysis = `📄 **Análise do arquivo: ${file.name}**\n\nDetectei que você enviou um documento de texto (${fileExtension.toUpperCase()}). Infelizmente, não posso ler o conteúdo completo do arquivo diretamente no navegador por questões de segurança, mas posso ajudar você de outras formas:\n\n• Se você copiar e colar o texto, posso analisá-lo completamente\n• Posso ajudar com formatação, estrutura e melhorias\n• Posso responder perguntas sobre o conteúdo se você me contar sobre o que se trata\n\nO que você gostaria de fazer com este documento?`;
+                } else if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExtension)) {
+                    analysis = `🖼️ **Análise da imagem: ${file.name}**\n\nVocê enviou uma imagem (${fileExtension.toUpperCase()})! Embora eu não possa processar o conteúdo visual diretamente, posso ajudar você com:\n\n• Informações sobre formatos de imagem\n• Dicas de edição e otimização\n• Conversão entre formatos\n• Se você descrever a imagem, posso dar sugestões relacionadas\n\nComo posso ajudar você com esta imagem?`;
+                } else if (['pdf'].includes(fileExtension)) {
+                    analysis = `📋 **Análise do PDF: ${file.name}**\n\nVocê enviou um arquivo PDF! Este é um formato muito versátil. Posso ajudar você com:\n\n• Dicas para trabalhar com PDFs\n• Ferramentas de edição e conversão\n• Se você copiar texto do PDF, posso analisá-lo\n• Orientações sobre estruturação de documentos\n\nQual tipo de ajuda você precisa com este PDF?`;
+                } else if (['js', 'html', 'css', 'py', 'java', 'cpp', 'c'].includes(fileExtension)) {
+                    analysis = `💻 **Análise do código: ${file.name}**\n\nDetectei um arquivo de código (${fileExtension.toUpperCase()})! Como desenvolvedor, posso ajudar você com:\n\n• Revisão e otimização de código\n• Explicação de conceitos de programação\n• Debugging e resolução de problemas\n• Melhores práticas de desenvolvimento\n• Se você colar o código, posso analisá-lo linha por linha\n\nQue tipo de ajuda você precisa com este código?`;
+                } else {
+                    analysis = `📁 **Arquivo recebido: ${file.name}**\n\nVocê enviou um arquivo do tipo ${fileExtension.toUpperCase()} (${formatFileSize(file.size)}). Embora eu não possa processar todos os tipos de arquivo diretamente, posso:\n\n• Fornecer informações sobre o formato\n• Sugerir ferramentas para trabalhar com este tipo de arquivo\n• Ajudar com conversões ou alternativas\n• Responder perguntas relacionadas ao conteúdo se você me contar sobre ele\n\nComo posso ajudar você com este arquivo?`;
+                }
+
+                addMessage('ai', analysis);
+            }, 2000);
+        }
+    </script>
+</body>
 </html>
