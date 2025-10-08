@@ -1,14 +1,11 @@
 #!/usr/bin/env python3
 """
 AI Vice - Sistema de IA Conversacional
-Script principal para executar o servidor com integração direta
+Script principal para executar o servidor Flask/SocketIO
 """
 
 import os
 import sys
-import asyncio
-import signal
-import threading
 from dotenv import load_dotenv
 
 # Carregar variáveis de ambiente
@@ -18,7 +15,6 @@ load_dotenv()
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
 from src.main import app, socketio
-from src.services.manus_integration import ManusIntegrationService
 import logging
 
 # Configurar logging
@@ -33,85 +29,6 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-class AIViceServer:
-    def __init__(self):
-        self.manus_service = None
-        self.server_thread = None
-        self.is_running = False
-        
-    def start_server(self):
-        """Inicia o servidor Flask/SocketIO"""
-        try:
-            host = os.getenv('HOST', '0.0.0.0')
-            port = int(os.getenv('PORT', 5000))
-            debug = os.getenv('DEBUG', 'False').lower() == 'true'
-            
-            logger.info(f"🚀 Iniciando servidor AI Vice em {host}:{port}")
-            
-            # Garante que o contexto da aplicação está ativo para operações de banco de dados
-            # db.init_app(app) e db.create_all() já são chamados em src/main.py
-            with app.app_context():
-                logger.info("📊 Contexto da aplicação Flask ativado para serviços")
-                
-                # Inicializar serviço de integração Manus
-                self.manus_service = ManusIntegrationService(socketio)
-                
-                # Exibir interface do terminal
-                self.manus_service.display_terminal_interface()
-                
-                # Iniciar loop de escuta em thread separada
-                def run_manus_service_loop():
-                    loop = asyncio.new_event_loop()
-                    asyncio.set_event_loop(loop)
-                    loop.run_until_complete(self.manus_service.start_listening())
-                
-                manus_thread = threading.Thread(target=run_manus_service_loop, daemon=True)
-                manus_thread.start()
-            
-            # Configurar handlers de sinal
-            signal.signal(signal.SIGINT, self._signal_handler)
-            signal.signal(signal.SIGTERM, self._signal_handler)
-            
-            self.is_running = True
-            
-            # Iniciar servidor SocketIO
-            socketio.run(
-                app, 
-                host=host, 
-                port=port, 
-                debug=debug,
-                allow_unsafe_werkzeug=True
-            )
-            
-        except Exception as e:
-            logger.error(f"❌ Erro ao iniciar servidor: {str(e)}")
-            sys.exit(1)
-    
-    def _signal_handler(self, signum, frame):
-        """Handler para sinais de interrupção"""
-        logger.info("🛑 Recebido sinal de interrupção, parando servidor...")
-        self.stop_server()
-    
-    def stop_server(self):
-        """Para o servidor"""
-        if self.manus_service:
-            self.manus_service.stop_listening()
-        
-        self.is_running = False
-        logger.info("✅ Servidor AI Vice parado com sucesso")
-        sys.exit(0)
-    
-    def display_status(self):
-        """Exibe status do servidor"""
-        if self.manus_service:
-            status = self.manus_service.get_status()
-            print(f"\n📊 Status do AI Vice:")
-            print(f"   Servidor: {'🟢 Ativo' if self.is_running else '🔴 Inativo'}")
-            print(f"   Serviço IA: {'🟢 Ativo' if status['is_running'] else '🔴 Inativo'}")
-            print(f"   Sessões ativas: {status['active_sessions']}")
-            print(f"   Total de mensagens: {status['total_messages']}")
-            print(f"   Última atualização: {status['timestamp']}")
-
 def main():
     """Função principal"""
     print("""
@@ -119,23 +36,36 @@ def main():
     ║                        AI VICE                               ║
     ║              Sistema de IA Conversacional                    ║
     ║                                                              ║
-    ║  🤖 Eu sou a IA que responderá às mensagens do site         ║
-    ║  💬 Todas as conversas passarão por mim                     ║
-    ║  📁 Posso analisar arquivos enviados pelos usuários        ║
-    ║  🔄 Funciono em tempo real via WebSocket                   ║
+    ║  🤖 Integração direta com OpenAI GPT-4.1-mini              ║
+    ║  💬 Comunicação em tempo real via WebSocket                 ║
+    ║  📁 Análise inteligente de arquivos                         ║
+    ║  🔄 Suporte a múltiplos usuários simultâneos               ║
     ║                                                              ║
     ╚══════════════════════════════════════════════════════════════╝
     """)
     
-    server = AIViceServer()
-    
     try:
-        server.start_server()
+        host = os.getenv('HOST', '0.0.0.0')
+        port = int(os.getenv('PORT', 5000))
+        debug = os.getenv('DEBUG', 'False').lower() == 'true'
+        
+        logger.info(f"🚀 Iniciando servidor AI Vice em {host}:{port}")
+        logger.info("🤖 IA OpenAI GPT-4.1-mini configurada e pronta")
+        logger.info("📡 WebSocket habilitado para comunicação em tempo real")
+        
+        # Iniciar servidor SocketIO
+        socketio.run(
+            app, 
+            host=host, 
+            port=port, 
+            debug=debug,
+            allow_unsafe_werkzeug=True
+        )
+        
     except KeyboardInterrupt:
-        logger.info("🛑 Interrompido pelo usuário")
-        server.stop_server()
+        logger.info("🛑 Servidor interrompido pelo usuário")
     except Exception as e:
-        logger.error(f"❌ Erro fatal: {str(e)}")
+        logger.error(f"❌ Erro ao iniciar servidor: {str(e)}")
         sys.exit(1)
 
 if __name__ == "__main__":
