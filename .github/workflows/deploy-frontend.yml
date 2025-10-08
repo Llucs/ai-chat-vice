@@ -30,6 +30,7 @@ jobs:
     - name: Install dependencies
       run: |
         cd frontend/ai-vice-frontend
+        npm cache clean --force
         npm install
 
     - name: Build application
