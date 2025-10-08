@@ -28,6 +28,14 @@ jobs:
       with:
         node-version: '18'
         
+    - name: Debug: Node and npm versions
+      run: |
+        node -v
+        npm -v
+        
+    - name: Debug: List frontend directory
+      run: ls -la frontend/ai-vice-frontend
+        
     - name: Install dependencies
       run: |
         cd frontend/ai-vice-frontend
