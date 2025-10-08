@@ -27,15 +27,8 @@ jobs:
       with:
         node-version: '18'
 
-    - name: Install dependencies
-      run: |
-        cd frontend/ai-vice-frontend
-        npm install
-
-    - name: Build application
-      run: |
-        cd frontend/ai-vice-frontend
-        npm run build
+    - name: Install dependencies and build
+      run: cd frontend/ai-vice-frontend && npm install && npm run build
 
     - name: Setup Pages
       uses: actions/configure-pages@v4
