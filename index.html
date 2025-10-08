@@ -14,16 +14,17 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 20px;
         }
 
         .chat-container {
-            width: 90%;
+            width: 100%;
             max-width: 800px;
-            height: 90vh;
+            height: 80vh;
             background: white;
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
@@ -42,7 +43,6 @@
 
         .chat-header h1 {
             font-size: 24px;
-            font-weight: 600;
             margin-bottom: 5px;
         }
 
@@ -57,9 +57,20 @@
             right: 20px;
             width: 12px;
             height: 12px;
-            background: #4ade80;
             border-radius: 50%;
             animation: pulse 2s infinite;
+        }
+
+        .status-indicator.connected {
+            background: #4ade80;
+        }
+
+        .status-indicator.disconnected {
+            background: #ef4444;
+        }
+
+        .status-indicator.connecting {
+            background: #f59e0b;
         }
 
         @keyframes pulse {
@@ -76,10 +87,9 @@
         }
 
         .message {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             display: flex;
-            align-items: flex-start;
-            gap: 12px;
+            gap: 10px;
             animation: slideIn 0.3s ease-out;
         }
 
@@ -103,28 +113,28 @@
             height: 40px;
             border-radius: 50%;
             display: flex;
-            items-center;
+            align-items: center;
             justify-content: center;
-            font-weight: bold;
-            color: white;
-            font-size: 16px;
+            font-size: 18px;
             flex-shrink: 0;
         }
 
         .message.ai .message-avatar {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
         }
 
         .message.user .message-avatar {
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
         }
 
         .message-content {
             max-width: 70%;
             padding: 15px 20px;
             border-radius: 20px;
-            position: relative;
             word-wrap: break-word;
+            white-space: pre-wrap;
         }
 
         .message.ai .message-content {
@@ -140,18 +150,77 @@
         }
 
         .message-time {
-            font-size: 12px;
+            font-size: 11px;
             opacity: 0.6;
             margin-top: 5px;
         }
 
-        .typing-indicator {
+        .chat-input {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .message-input:focus {
+            border-color: #667eea;
+        }
+
+        .send-button {
+            width: 50px;
+            height: 50px;
+            border: none;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            cursor: pointer;
+            font-size: 18px;
+            transition: transform 0.2s ease;
+        }
+
+        .send-button:hover {
+            transform: scale(1.05);
+        }
+
+        .send-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .welcome {
+            text-align: center;
+            padding: 40px 20px;
+            color: #64748b;
+        }
+
+        .welcome h2 {
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+
+        .typing {
             display: none;
             padding: 15px 20px;
             background: white;
             border: 1px solid #e2e8f0;
             border-radius: 20px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .typing-dots {
@@ -175,109 +244,32 @@
             40% { transform: scale(1); }
         }
 
-        .chat-input {
-            padding: 20px;
-            background: white;
-            border-top: 1px solid #e2e8f0;
-        }
-
-        .input-container {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-
-        .message-input {
-            flex: 1;
-            padding: 15px 20px;
-            border: 2px solid #e2e8f0;
-            border-radius: 25px;
-            font-size: 16px;
-            outline: none;
-            transition: border-color 0.3s ease;
-        }
-
-        .message-input:focus {
-            border-color: #667eea;
-        }
-
-        .send-button, .file-button {
-            width: 50px;
-            height: 50px;
-            border: none;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            transition: transform 0.2s ease;
-        }
-
-        .send-button:hover, .file-button:hover {
-            transform: scale(1.05);
-        }
-
-        .send-button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .file-input {
-            display: none;
-        }
-
-        .file-preview {
-            margin-top: 10px;
-            padding: 10px;
-            background: #f1f5f9;
-            border-radius: 10px;
-            display: none;
-        }
-
-        .welcome-message {
-            text-align: center;
-            padding: 40px 20px;
-            color: #64748b;
-        }
-
-        .welcome-message h2 {
-            color: #1e293b;
-            margin-bottom: 10px;
-        }
-
-        @media (max-width: 768px) {
-            .chat-container {
-                width: 95%;
-                height: 95vh;
-                border-radius: 15px;
-            }
-            
-            .message-content {
-                max-width: 85%;
-            }
+        .connection-status {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 12px;
+            opacity: 0.8;
         }
     </style>
 </head>
 <body>
     <div class="chat-container">
         <div class="chat-header">
-            <div class="status-indicator"></div>
-            <h1>AI Vice</h1>
-            <p>Assistente de IA Conversacional</p>
+            <div class="status-indicator connecting" id="statusIndicator"></div>
+            <div class="connection-status" id="connectionStatus">Conectando...</div>
+            <h1>🤖 AI Vice</h1>
+            <p>Assistente de IA Conversacional - Powered by Manus AI</p>
         </div>
 
-        <div class="chat-messages" id="chatMessages">
-            <div class="welcome-message">
+        <div class="chat-messages" id="messages">
+            <div class="welcome">
                 <h2>👋 Olá! Eu sou o AI Vice</h2>
-                <p>Sou uma IA conversacional pronta para ajudar você com qualquer coisa que precisar. Pode fazer perguntas, enviar arquivos para análise, ou simplesmente conversar!</p>
+                <p>Sou uma IA conversacional powered by Manus AI, pronta para ajudar você com qualquer coisa que precisar. Pode fazer perguntas ou simplesmente conversar!</p>
             </div>
         </div>
 
-        <div class="typing-indicator" id="typingIndicator">
+        <div class="typing" id="typing">
             <div class="typing-dots">
                 <span></span>
                 <span></span>
@@ -286,105 +278,153 @@
         </div>
 
         <div class="chat-input">
-            <div class="file-preview" id="filePreview"></div>
             <div class="input-container">
-                <button class="file-button" onclick="document.getElementById('fileInput').click()" title="Enviar arquivo">
-                    📎
-                </button>
-                <input type="file" id="fileInput" class="file-input" accept="*/*">
-                <input type="text" id="messageInput" class="message-input" placeholder="Digite sua mensagem..." maxlength="1000">
-                <button class="send-button" id="sendButton" onclick="sendMessage()" title="Enviar mensagem">
-                    ➤
-                </button>
+                <input type="text" id="messageInput" class="message-input" placeholder="Digite sua mensagem..." maxlength="500">
+                <button class="send-button" id="sendButton" onclick="sendMessage()">➤</button>
             </div>
         </div>
     </div>
 
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script>
-        let messageCount = 0;
-        let currentFile = null;
+        // Configuração
+        const BACKEND_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:5000' 
+            : 'https://llucs.github.io/ai-chat-vice'; // Fallback para GitHub Pages
 
-        // Inicializar
+        // Estado da aplicação
+        let socket = null;
+        let sessionId = null;
+        let userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        let isConnected = false;
+        let useRealBackend = false;
+
+        // Elementos DOM
+        const messagesContainer = document.getElementById('messages');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        const statusIndicator = document.getElementById('statusIndicator');
+        const connectionStatus = document.getElementById('connectionStatus');
+        const typingIndicator = document.getElementById('typing');
+
+        // Inicializar aplicação
         document.addEventListener('DOMContentLoaded', function() {
-            const messageInput = document.getElementById('messageInput');
+            initializeApp();
+            
+            // Event listeners
             messageInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
+                if (e.key === 'Enter') {
                     sendMessage();
                 }
             });
-
-            // File input handler
-            document.getElementById('fileInput').addEventListener('change', handleFileSelect);
         });
 
-        function handleFileSelect(event) {
-            const file = event.target.files[0];
-            if (file) {
-                currentFile = file;
-                const preview = document.getElementById('filePreview');
-                preview.innerHTML = `
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span>📄 ${file.name} (${formatFileSize(file.size)})</span>
-                        <button onclick="removeFile()" style="background: none; border: none; color: #ef4444; cursor: pointer;">✕</button>
-                    </div>
-                `;
-                preview.style.display = 'block';
+        async function initializeApp() {
+            // Tentar conectar com backend real primeiro
+            try {
+                updateConnectionStatus('connecting', 'Conectando com Manus AI...');
+                await connectToBackend();
+            } catch (error) {
+                console.log('Backend não disponível, usando modo offline');
+                updateConnectionStatus('disconnected', 'Modo Offline');
+                useRealBackend = false;
             }
         }
 
-        function removeFile() {
-            currentFile = null;
-            document.getElementById('filePreview').style.display = 'none';
-            document.getElementById('fileInput').value = '';
+        async function connectToBackend() {
+            try {
+                // Testar se backend está disponível
+                const response = await fetch(`${BACKEND_URL}/api/health`);
+                if (!response.ok) throw new Error('Backend não disponível');
+
+                // Criar sessão
+                const sessionResponse = await fetch(`${BACKEND_URL}/api/sessions`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: userId })
+                });
+
+                const sessionData = await sessionResponse.json();
+                if (!sessionData.success) throw new Error('Erro ao criar sessão');
+
+                sessionId = sessionData.session.id;
+
+                // Conectar WebSocket
+                socket = io(BACKEND_URL);
+
+                socket.on('connect', () => {
+                    socket.emit('connect', { session_id: sessionId });
+                    isConnected = true;
+                    useRealBackend = true;
+                    updateConnectionStatus('connected', 'Conectado com Manus AI');
+                    
+                    // Remover mensagem de boas-vindas e adicionar a do backend
+                    const welcome = document.querySelector('.welcome');
+                    if (welcome) welcome.remove();
+                    
+                    if (sessionData.welcome_message) {
+                        addMessage('ai', sessionData.welcome_message.content);
+                    }
+                });
+
+                socket.on('disconnect', () => {
+                    isConnected = false;
+                    updateConnectionStatus('disconnected', 'Desconectado');
+                });
+
+                socket.on('message', (message) => {
+                    if (message.sender === 'ai') {
+                        hideTypingIndicator();
+                        addMessage('ai', message.content);
+                    }
+                });
+
+                socket.on('error', (error) => {
+                    console.error('Socket error:', error);
+                    addMessage('ai', 'Desculpe, houve um erro. Pode tentar novamente?');
+                });
+
+            } catch (error) {
+                throw error;
+            }
         }
 
-        function formatFileSize(bytes) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        function updateConnectionStatus(status, text) {
+            statusIndicator.className = `status-indicator ${status}`;
+            connectionStatus.textContent = text;
         }
 
         function sendMessage() {
-            const input = document.getElementById('messageInput');
-            const message = input.value.trim();
-            
-            if (!message && !currentFile) return;
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            // Remover mensagem de boas-vindas se existir
+            const welcome = document.querySelector('.welcome');
+            if (welcome) welcome.remove();
 
             // Adicionar mensagem do usuário
-            if (message) {
-                addMessage('user', message);
-            }
+            addMessage('user', message);
+            messageInput.value = '';
 
-            // Se há arquivo, adicionar mensagem de arquivo
-            if (currentFile) {
-                addMessage('user', `📄 Arquivo enviado: ${currentFile.name}`, true);
-                // Simular análise do arquivo
-                setTimeout(() => {
-                    analyzeFile(currentFile);
-                }, 1000);
-                removeFile();
-            }
-
-            // Limpar input
-            input.value = '';
-
-            // Mostrar indicador de digitação
-            if (message) {
+            if (useRealBackend && socket && isConnected) {
+                // Enviar para backend real (Manus AI)
+                socket.emit('message', {
+                    session_id: sessionId,
+                    content: message,
+                    user_id: userId
+                });
                 showTypingIndicator();
-                
-                // Simular resposta da IA
+            } else {
+                // Modo offline - resposta simulada
+                showTypingIndicator();
                 setTimeout(() => {
                     hideTypingIndicator();
-                    generateAIResponse(message);
-                }, 1500 + Math.random() * 1000);
+                    generateOfflineResponse(message);
+                }, 1500);
             }
         }
 
-        function addMessage(sender, content, isFile = false) {
-            const messagesContainer = document.getElementById('chatMessages');
+        function addMessage(sender, content) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${sender}`;
             
@@ -402,84 +442,43 @@
                 </div>
             `;
 
-            // Remover mensagem de boas-vindas se existir
-            const welcomeMessage = messagesContainer.querySelector('.welcome-message');
-            if (welcomeMessage) {
-                welcomeMessage.remove();
-            }
-
             messagesContainer.appendChild(messageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            messageCount++;
         }
 
         function showTypingIndicator() {
-            document.getElementById('typingIndicator').style.display = 'block';
-            const messagesContainer = document.getElementById('chatMessages');
+            typingIndicator.style.display = 'block';
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
         function hideTypingIndicator() {
-            document.getElementById('typingIndicator').style.display = 'none';
+            typingIndicator.style.display = 'none';
         }
 
-        function generateAIResponse(userMessage) {
-            // Simular diferentes tipos de resposta baseado na mensagem
+        function generateOfflineResponse(userMessage) {
+            const lowerMessage = userMessage.toLowerCase();
             let response = '';
             
-            const lowerMessage = userMessage.toLowerCase();
-            
-            if (lowerMessage.includes('olá') || lowerMessage.includes('oi') || lowerMessage.includes('hello')) {
-                response = 'Olá! 👋 É um prazer conversar com você! Como posso ajudar hoje?';
-            } else if (lowerMessage.includes('como você está') || lowerMessage.includes('tudo bem')) {
-                response = 'Estou muito bem, obrigado por perguntar! 😊 Estou aqui e pronto para ajudar você com qualquer coisa que precisar. E você, como está?';
-            } else if (lowerMessage.includes('quem é você') || lowerMessage.includes('o que você é')) {
-                response = 'Eu sou o AI Vice, um assistente de inteligência artificial conversacional! 🤖 Fui criado para ajudar você com perguntas, análise de arquivos, conversas e muito mais. Posso processar textos, analisar documentos e manter conversas naturais em português.';
-            } else if (lowerMessage.includes('arquivo') || lowerMessage.includes('documento')) {
-                response = 'Posso ajudar você com arquivos! 📄 Você pode enviar documentos de texto, código, planilhas e outros tipos de arquivo usando o botão de anexo (📎). Vou analisar o conteúdo e fornecer insights úteis.';
-            } else if (lowerMessage.includes('obrigado') || lowerMessage.includes('valeu')) {
-                response = 'De nada! 😊 Fico feliz em poder ajudar. Se precisar de mais alguma coisa, é só falar!';
-            } else if (lowerMessage.includes('tchau') || lowerMessage.includes('até logo')) {
-                response = 'Até logo! 👋 Foi ótimo conversar com você. Volte sempre que precisar de ajuda!';
-            } else if (lowerMessage.includes('ajuda') || lowerMessage.includes('help')) {
-                response = 'Claro! Posso ajudar você de várias formas: 🔹 Responder perguntas sobre diversos assuntos 🔹 Analisar arquivos e documentos 🔹 Conversar sobre qualquer tópico 🔹 Ajudar com programação e tecnologia 🔹 Fornecer explicações e tutoriais. O que você gostaria de saber?';
+            if (lowerMessage.includes('olá') || lowerMessage.includes('oi')) {
+                response = 'Olá! 👋 Estou em modo offline, mas ainda posso conversar com você! Como posso ajudar?';
+            } else if (lowerMessage.includes('como você está')) {
+                response = 'Estou bem, obrigado! 😊 Estou funcionando em modo offline no momento. E você, como está?';
+            } else if (lowerMessage.includes('quem é você')) {
+                response = 'Eu sou o AI Vice! 🤖 Normalmente sou powered by Manus AI, mas no momento estou em modo offline. Ainda assim, posso conversar com você!';
+            } else if (lowerMessage.includes('obrigado')) {
+                response = 'De nada! 😊 Mesmo offline, fico feliz em ajudar!';
+            } else if (lowerMessage.includes('tchau')) {
+                response = 'Até logo! 👋 Tente voltar mais tarde para conversar comigo em modo online com Manus AI!';
             } else {
-                // Resposta mais genérica e inteligente
                 const responses = [
-                    `Interessante pergunta! 🤔 Sobre "${userMessage}", posso dizer que é um tópico fascinante. Você poderia me dar mais detalhes sobre o que especificamente gostaria de saber?`,
-                    `Entendo sua questão sobre "${userMessage}". 💭 Para te dar uma resposta mais precisa, seria útil saber mais contexto. Pode me explicar melhor o que você tem em mente?`,
-                    `Ótima pergunta! 🌟 "${userMessage}" é algo que desperta curiosidade. Vou fazer o meu melhor para ajudar - você pode me dar mais informações sobre o que está procurando?`,
-                    `Vejo que você está interessado em "${userMessage}". 🎯 Posso ajudar com isso! Que tipo de informação ou assistência você está buscando especificamente?`
+                    `Interessante! 🤔 Estou em modo offline, mas "${userMessage}" é um tópico legal. Tente me acessar online para uma conversa mais avançada!`,
+                    `Legal! 💭 No modo offline posso dar respostas básicas sobre "${userMessage}". Para uma experiência completa, tente quando eu estiver conectado com Manus AI!`,
+                    `Boa pergunta! 🌟 Em modo offline tenho funcionalidade limitada para "${userMessage}". Volte quando eu estiver online para uma resposta mais completa!`
                 ];
                 response = responses[Math.floor(Math.random() * responses.length)];
             }
 
             addMessage('ai', response);
-        }
-
-        function analyzeFile(file) {
-            showTypingIndicator();
-            
-            setTimeout(() => {
-                hideTypingIndicator();
-                
-                const fileExtension = file.name.split('.').pop().toLowerCase();
-                let analysis = '';
-
-                if (['txt', 'md', 'doc', 'docx'].includes(fileExtension)) {
-                    analysis = `📄 **Análise do arquivo: ${file.name}**\n\nDetectei que você enviou um documento de texto (${fileExtension.toUpperCase()}). Infelizmente, não posso ler o conteúdo completo do arquivo diretamente no navegador por questões de segurança, mas posso ajudar você de outras formas:\n\n• Se você copiar e colar o texto, posso analisá-lo completamente\n• Posso ajudar com formatação, estrutura e melhorias\n• Posso responder perguntas sobre o conteúdo se você me contar sobre o que se trata\n\nO que você gostaria de fazer com este documento?`;
-                } else if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExtension)) {
-                    analysis = `🖼️ **Análise da imagem: ${file.name}**\n\nVocê enviou uma imagem (${fileExtension.toUpperCase()})! Embora eu não possa processar o conteúdo visual diretamente, posso ajudar você com:\n\n• Informações sobre formatos de imagem\n• Dicas de edição e otimização\n• Conversão entre formatos\n• Se você descrever a imagem, posso dar sugestões relacionadas\n\nComo posso ajudar você com esta imagem?`;
-                } else if (['pdf'].includes(fileExtension)) {
-                    analysis = `📋 **Análise do PDF: ${file.name}**\n\nVocê enviou um arquivo PDF! Este é um formato muito versátil. Posso ajudar você com:\n\n• Dicas para trabalhar com PDFs\n• Ferramentas de edição e conversão\n• Se você copiar texto do PDF, posso analisá-lo\n• Orientações sobre estruturação de documentos\n\nQual tipo de ajuda você precisa com este PDF?`;
-                } else if (['js', 'html', 'css', 'py', 'java', 'cpp', 'c'].includes(fileExtension)) {
-                    analysis = `💻 **Análise do código: ${file.name}**\n\nDetectei um arquivo de código (${fileExtension.toUpperCase()})! Como desenvolvedor, posso ajudar você com:\n\n• Revisão e otimização de código\n• Explicação de conceitos de programação\n• Debugging e resolução de problemas\n• Melhores práticas de desenvolvimento\n• Se você colar o código, posso analisá-lo linha por linha\n\nQue tipo de ajuda você precisa com este código?`;
-                } else {
-                    analysis = `📁 **Arquivo recebido: ${file.name}**\n\nVocê enviou um arquivo do tipo ${fileExtension.toUpperCase()} (${formatFileSize(file.size)}). Embora eu não possa processar todos os tipos de arquivo diretamente, posso:\n\n• Fornecer informações sobre o formato\n• Sugerir ferramentas para trabalhar com este tipo de arquivo\n• Ajudar com conversões ou alternativas\n• Responder perguntas relacionadas ao conteúdo se você me contar sobre ele\n\nComo posso ajudar você com este arquivo?`;
-                }
-
-                addMessage('ai', analysis);
-            }, 2000);
         }
     </script>
 </body>
