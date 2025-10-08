@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Vice - Chat com IA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 800px;
+            height: 80vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .chat-header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .chat-header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8fafc;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .message.ai .message-avatar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .message.user .message-avatar {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 15px 20px;
+            border-radius: 20px;
+            word-wrap: break-word;
+        }
+
+        .message.ai .message-content {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px 20px 20px 5px;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px 20px 5px 20px;
+        }
+
+        .chat-input {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .message-input:focus {
+            border-color: #667eea;
+        }
+
+        .send-button {
+            width: 50px;
+            height: 50px;
+            border: none;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .send-button:hover {
+            transform: scale(1.05);
+        }
+
+        .welcome {
+            text-align: center;
+            padding: 40px 20px;
+            color: #64748b;
+        }
+
+        .welcome h2 {
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+
+        .typing {
+            display: none;
+            padding: 15px 20px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            margin-bottom: 15px;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dots span {
+            width: 8px;
+            height: 8px;
+            background: #94a3b8;
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h1>🤖 AI Vice</h1>
+            <p>Assistente de IA Conversacional</p>
+        </div>
+
+        <div class="chat-messages" id="messages">
+            <div class="welcome">
+                <h2>👋 Olá! Eu sou o AI Vice</h2>
+                <p>Sou uma IA conversacional pronta para ajudar você com qualquer coisa que precisar. Pode fazer perguntas ou simplesmente conversar!</p>
+            </div>
+        </div>
+
+        <div class="typing" id="typing">
+            <div class="typing-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+
+        <div class="chat-input">
+            <div class="input-container">
+                <input type="text" id="messageInput" class="message-input" placeholder="Digite sua mensagem..." maxlength="500">
+                <button class="send-button" onclick="sendMessage()">➤</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+
+            // Remover mensagem de boas-vindas
+            const welcome = document.querySelector('.welcome');
+            if (welcome) welcome.remove();
+
+            // Adicionar mensagem do usuário
+            addMessage('user', message);
+            input.value = '';
+
+            // Mostrar indicador de digitação
+            document.getElementById('typing').style.display = 'block';
+            
+            // Simular resposta da IA
+            setTimeout(() => {
+                document.getElementById('typing').style.display = 'none';
+                generateResponse(message);
+            }, 1500);
+        }
+
+        function addMessage(sender, content) {
+            const messagesContainer = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">${sender === 'ai' ? '🤖' : '👤'}</div>
+                <div class="message-content">${content}</div>
+            `;
+
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function generateResponse(userMessage) {
+            const lowerMessage = userMessage.toLowerCase();
+            let response = '';
+            
+            if (lowerMessage.includes('olá') || lowerMessage.includes('oi')) {
+                response = 'Olá! 👋 É um prazer conversar com você! Como posso ajudar hoje?';
+            } else if (lowerMessage.includes('como você está')) {
+                response = 'Estou muito bem, obrigado por perguntar! 😊 Estou aqui e pronto para ajudar você. E você, como está?';
+            } else if (lowerMessage.includes('quem é você')) {
+                response = 'Eu sou o AI Vice, um assistente de inteligência artificial! 🤖 Fui criado para ajudar você com perguntas, conversas e muito mais.';
+            } else if (lowerMessage.includes('obrigado')) {
+                response = 'De nada! 😊 Fico feliz em poder ajudar. Se precisar de mais alguma coisa, é só falar!';
+            } else if (lowerMessage.includes('tchau')) {
+                response = 'Até logo! 👋 Foi ótimo conversar com você. Volte sempre que precisar!';
+            } else if (lowerMessage.includes('ajuda')) {
+                response = 'Claro! Posso ajudar você de várias formas: responder perguntas, conversar sobre qualquer tópico, ajudar com dúvidas. O que você gostaria de saber?';
+            } else {
+                const responses = [
+                    `Interessante! 🤔 Sobre "${userMessage}", posso dizer que é um tópico fascinante. Você poderia me dar mais detalhes?`,
+                    `Entendo sua questão! 💭 Para te dar uma resposta mais precisa sobre "${userMessage}", seria útil saber mais contexto.`,
+                    `Ótima pergunta! 🌟 "${userMessage}" é algo que desperta curiosidade. Que tipo de informação você está buscando?`,
+                    `Vejo que você está interessado em "${userMessage}". 🎯 Como posso ajudar você com isso especificamente?`
+                ];
+                response = responses[Math.floor(Math.random() * responses.length)];
+            }
+
+            addMessage('ai', response);
+        }
+
+        // Enter para enviar
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
