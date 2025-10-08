@@ -10,7 +10,7 @@ import { Send, Paperclip, Bot, User, FileText, Download } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 const BACKEND_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://your-backend-url.railway.app' // Será atualizado com URL real
+  ? 'https://ai-vice-backend.railway.app' // URL do backend em produção
   : 'http://localhost:5000'
 
 export default function ChatInterface() {
