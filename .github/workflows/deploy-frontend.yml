@@ -28,9 +28,17 @@ jobs:
       with:
         node-version: '18'
         cache: 'pnpm'
+        cache-dependency-path: frontend/ai-vice-frontend/pnpm-lock.yaml
         
-    - name: Install pnpm globally
-      run: npm install -g pnpm
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: latest
+
+    - name: Debug pnpm path
+      run: |
+        echo "PATH: $PATH"
+        which pnpm
         
     - name: Install dependencies
       run: |
