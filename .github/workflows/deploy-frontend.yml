@@ -37,12 +37,16 @@ jobs:
       run: |
         cd frontend/ai-vice-frontend
         npm run build
+
+    - name: List files in dist
+      run: ls -R frontend/ai-vice-frontend/dist
         
     - name: Setup Pages
       uses: actions/configure-pages@v4
       
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v3
+      if: always()
       with:
         path: frontend/ai-vice-frontend/dist
 
