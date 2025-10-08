@@ -27,22 +27,18 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '18'
-        
-    - name: Install pnpm globally
-      run: npm install -g pnpm
-
-    - name: Add npm global bin to PATH
-      run: echo "$(npm config get prefix)/bin" >> $GITHUB_PATH
+        cache: 'npm'
+        cache-dependency-path: frontend/ai-vice-frontend/package-lock.json
         
     - name: Install dependencies
       run: |
         cd frontend/ai-vice-frontend
-        pnpm install
+        npm install
         
     - name: Build application
       run: |
         cd frontend/ai-vice-frontend
-        pnpm run build
+        npm run build
         
     - name: Setup Pages
       uses: actions/configure-pages@v4
